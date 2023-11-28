@@ -8,12 +8,12 @@ from data_to_json import DataToJson as data_to_json
 def main() -> None:
     # вид ссылки на первую страницу
     # https://online.metro-cc.ru/category/ovoshchi-i-frukty/frukty?from=under_search&in_stock=1
-    # det_html_site.main(
-    #     url="https://online.metro-cc.ru/category/ovoshchi-i-" +
-    #     "frukty/frukty?from=under_search&in_stock=1"
-    # )
-    #lxml_parser.main(file_path="moscow.html")
-    #lxml_parser.main(file_path="st_petersburg.html")
+    det_html_site.main(
+        url="https://online.metro-cc.ru/category/ovoshchi-i-" +
+        "frukty/frukty?from=under_search&in_stock=1"
+    )
+    lxml_parser.main(file_path="moscow.html")
+    lxml_parser.main(file_path="st_petersburg.html")
     data_to_json.main(file_path="moscow.txt")
     data_to_json.main(file_path="st_petersburg.txt")
 
