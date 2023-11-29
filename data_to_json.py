@@ -1,8 +1,13 @@
+"""This file contains the logic for reading links andproduct prices from the txt file.
+Based on the received links, a “requests” request is
+executed to obtain the main attributes of the product.
+The query results are collected into a list and written to a json file
+"""
+from dataclasses import dataclass
 import requests
 from bs4 import BeautifulSoup
 import time
 from fake_useragent import UserAgent
-from dataclasses import dataclass
 from random import randint as rand
 import json
 from main_parser_class import MainParserClass as Main
@@ -15,71 +20,115 @@ headers = {
 
 
 @dataclass
-class ProductData:
-    id: str = ''
-    name: str = ''
-    reference: str = ''
-    regular_price: str = ''
-    promo_price: str = ''
-    brand: str = ''
+class ProductAttributes:
+    """Stores product attributes"""
+    REFERENCE: str = ''
+    REGULAR:   str = ''
+    PROMO:     str = ''
 
 
 class DataToJson(Main):
+    """The class for obtaining links and prices from a TXT file and creating
+    requests to the site in order to obtain output data for recording in json.
+    """
     @classmethod
     def main(cls, file_path: str) -> None:
+        """Method to run logic of the class
+
+        Args:
+            url (str): path to TXT file
+        """
         cls.get_data(file_path)
 
     @classmethod
-    def get_data(cls, file_path) -> str:
-        with open(file_path) as file:
-            urls_list = [url.strip() for url in file]
+    def get_data(cls, file_path: str) -> str:
+        """Receives data from TXT and executes requests on
+        the received links to save the result in a JSON file
 
-        product = ProductData()
+        Args:
+            file_path (_type_): path to TXT file
 
-        result_list: set = []
-        result_list.append(file_path.split('.')[0])
+        Returns:
+            str: method success message
+        """
+        urls_list: list = cls.get_list_strings(file_path)
 
-        for iter, url in enumerate(urls_list):
-            # Парс строка
-            url_list = url.split()
-            reference = url_list[0]
-            regular = promo = ''
-            if len(url_list) == 3:
-                promo = url_list[1]
-                regular = url_list[2]
-            else:
-                regular = url_list[1]
+        result_list: list = []
+        result_list.append(file_path.split('.')[0])  # Сity name is added
 
-            response = requests.get(url=reference, headers=headers)            
-            soup = BeautifulSoup(response.text, "lxml")
+        for url in urls_list:
+            prod_attr: ProductAttributes = cls.get_attributes(url)
+            print(prod_attr.REFERENCE)
+            soup: BeautifulSoup = cls.get_additional_attribute(prod_attr.REFERENCE)
 
-            product.id = cls.get_id(soup)
-            product.name = cls.get_name(soup)
-            product.reference = reference.strip()
-            product.regular_price = regular.strip()
-            product.promo_price = promo.strip()
-            product.brand = cls.get_brand(soup)
-
+            # Filling the list of products for uploading in json
             result_list.append(
                 {
-                    "id товара": product.id,
-                    "наименование": product.name,
-                    "ссылка на товар": product.reference,
-                    "регулярная цена": product.regular_price,
-                    "промо цена": product.promo_price,
-                    "бренд": product.brand
+                    "id товара": cls.get_id(soup),
+                    "наименование": cls.get_name(soup),
+                    "ссылка на товар": prod_attr.REFERENCE.strip(),
+                    "регулярная цена": prod_attr.REGULAR.strip(),
+                    "промо цена": prod_attr.PROMO.strip(),
+                    "бренд": cls.get_brand(soup)
                 }
             )
-            print(iter, product)
             time.sleep(2 + rand(1, 3))
 
-        # save the file as json
         cls.save_json(result_list)
-
         return "[INFO] Data collected successfully"
 
     @classmethod
+    def get_list_strings(cls, file_path: str) -> list:
+        """Returns a list of lines read from a file at the specified path
+
+        Args:
+            file_path (str): path to TXT file
+
+        Returns:
+            list: list of strings
+        """
+        with open(file_path) as file:
+            return [url.strip() for url in file]
+
+    @classmethod
+    def get_additional_attribute(cls, reference: str) -> BeautifulSoup:
+        response = requests.get(url=reference, headers=headers)
+        return BeautifulSoup(response.text, "lxml")
+
+    @classmethod
+    def get_attributes(cls, attribute_string: str) -> ProductAttributes:
+        """Returns the attributes of an object obtained
+        from a string containing a link to the site and prices
+
+        Args:
+            attribute_string (str): line containing link and prices
+
+        Returns:
+            ProductAttributes: Returns the ProductAttributes
+            object containing product attributes
+        """
+        url_list: list = attribute_string.split()
+
+        prod_attr = ProductAttributes()
+
+        prod_attr.REFERENCE = url_list[0]
+        if len(url_list) == 3:
+            prod_attr.PROMO = url_list[1]
+            prod_attr.REGULAR = url_list[2]
+        else:
+            prod_attr.REGULAR = url_list[1]
+        return prod_attr
+
+    @classmethod
     def get_id(cls, soup: BeautifulSoup) -> str:
+        """Getting product 'ID' from HTML
+
+        Args:
+            soup (BeautifulSoup): object containing HTML
+
+        Returns:
+            str: found product ID
+        """
         try:
             long_id = soup.find("p", {"class": "product-page-content__article"}).text.strip()
             return long_id.split()[1] if long_id else ''
@@ -88,6 +137,14 @@ class DataToJson(Main):
 
     @classmethod
     def get_name(cls, soup: BeautifulSoup) -> str:
+        """Getting product 'Name' from HTML
+
+        Args:
+            soup (BeautifulSoup): object containing HTML
+
+        Returns:
+            str: found product 'Name'
+        """
         try:
             return soup.find(
                 "h1", {"class": "product-page-content__product-name"}
@@ -97,20 +154,34 @@ class DataToJson(Main):
 
     @classmethod
     def get_brand(cls, soup: BeautifulSoup) -> str:
-        result_list =[]
+        """Getting product 'Brand' from HTML
+
+        Args:
+            soup (BeautifulSoup): object containing HTML
+
+        Returns:
+            str: found product 'Brand'
+        """
+        result_list = []
         try:
             brand = ''
             table = soup.find('ul', class_="product-attributes__list")
-            for ind, li in enumerate(table.findAll('li')):
+
+            # Save all product attributes to select the last one
+            for li in table.findAll('li'):
                 result_list.append(li)
             brand = result_list[-1].find('a').get_text()
-            #brand = li.find('a').get_text()
 
             return brand.strip()
         except Exception:
             return None
 
     @classmethod
-    def save_json(cls, data_collection: list | set) -> None:
+    def save_json(cls, data_collection: list) -> None:
+        """Saves a list of product attributes to a json file
+
+        Args:
+            data_collection (list): list with product attributes
+        """
         with open("result.json.json", "a") as file:
             json.dump(data_collection, file, indent=4, ensure_ascii=False)

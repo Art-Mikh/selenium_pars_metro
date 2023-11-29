@@ -1,5 +1,5 @@
-"""File with a class for converting HTML into
-a list of addresses and prices and saving the result to a TXT file
+"""File with a class for converting HTML into a list of
+addresses and prices and saving the result to a TXT file
 """
 from bs4 import BeautifulSoup
 from main_parser_class import MainParserClass as Main
@@ -28,9 +28,9 @@ class LXMLParser(Main):
         Returns:
             str: status message about successful completion
         """
-        src = cls.open_file(file_path)
+        src: str = cls.open_file(file_path)
         soup = BeautifulSoup(src, "lxml")
-        urls = cls.generate_string_list(soup)
+        urls: list = cls.generate_string_list(soup)
         cls.save_file(urls, file_path)
         return "[INFO] Urls collected successfully!"
 
@@ -59,8 +59,7 @@ class LXMLParser(Main):
             list: list of links and prices
         """
         urls = []
-
-        for block in soup.find_all('div', class_="product-card__content"): # catalog-2-level-product-card
+        for block in soup.find_all('div', class_="product-card__content"):
             reference = block.find('a', class_="product-card-name")
             reference = 'https://online.metro-cc.ru' + reference['href']
             for prise in block.find_all('span', class_="product-price__sum-rubles"):
