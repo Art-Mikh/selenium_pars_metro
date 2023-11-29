@@ -17,7 +17,6 @@ Required uploaded data:
 Additional requirements:
 Since there was not enough time to implement the program due to my main work,
 I'll try to fix it in the next update:
--fix output bug in json
 -remove test prints
 -remove unnecessary comments
 -write pep257 documentation where there is none
@@ -44,7 +43,6 @@ RU:
 Дополнительные требования:
 Так как немного не хватило времени на реализацию программы из-за основной работы,
 в следующем обновлении попытаюсь исправить:
--поправить баг вывода в json
 -убрать тестовые prints
 -убрать лишние комментарии
 -написать документацию pep257, где ее нет

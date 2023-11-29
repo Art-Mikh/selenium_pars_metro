@@ -58,20 +58,6 @@ class MainSiteHTML(Main):
             # Perform reading for Moscow
             cls.scroll_page(driver, "moscow.html")
 
-            #cls.scroll_page(driver) ##
-            
-            # while True:
-            #     buttons_list = cls.find_button(driver)
-            #     """If the block is not found, then save
-            #     the received data to the file and exit
-            #     the loop, otherwise, click on the found button
-            #     """
-            #     if not len(buttons_list):
-            #         cls.save_file(driver)
-            #         break  # exit the loop
-            #     else:
-            #         cls.click_button(driver, buttons_list)
-
             print("Москва кончилась")
             time.sleep(3)
 

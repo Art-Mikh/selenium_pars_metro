@@ -97,13 +97,14 @@ class DataToJson(Main):
 
     @classmethod
     def get_brand(cls, soup: BeautifulSoup) -> str:
+        result_list =[]
         try:
             brand = ''
             table = soup.find('ul', class_="product-attributes__list")
             for ind, li in enumerate(table.findAll('li')):
-                d = li.find_all("span", string="Бренд")
-                if ind == 5:
-                    brand = li.find('a').get_text()
+                result_list.append(li)
+            brand = result_list[-1].find('a').get_text()
+            #brand = li.find('a').get_text()
 
             return brand.strip()
         except Exception:
