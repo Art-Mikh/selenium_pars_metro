@@ -4,11 +4,11 @@ receiving HTML data from the main page of the site
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 import time
-from main_parser_class import MainParserClass as Main
+from main_parser_class import MainParserClass as Main, ErrorMixin as ErrMixin
 from selenium.webdriver.common.keys import Keys
 
 
-class MainSiteHTML(Main):
+class MainSiteHTML(Main, ErrMixin):
     @classmethod
     def main(cls, url: str) -> None:
         """Method to run logic of the class
@@ -16,6 +16,7 @@ class MainSiteHTML(Main):
         Args:
             url (str): address of the required website
         """
+        MainSiteHTML.check_str_parameter(url)
         cls.get_source_html(
             url=url,
             file_path="moscow.html",
@@ -23,7 +24,7 @@ class MainSiteHTML(Main):
         )
         cls.get_source_html(
             url=url,
-            file_path="st_petersburg.html",            
+            file_path="st_petersburg.html",
             # "Санкт-Петербург, Подольская улица, 38"
             address="Санкт-Петербург, Малодетскосельский проспект, 7"
         )
@@ -40,6 +41,9 @@ class MainSiteHTML(Main):
         Args:
             url (str): address of the required website
         """
+        MainSiteHTML.check_str_parameter(url)
+        MainSiteHTML.check_str_parameter(file_path)
+        MainSiteHTML.check_str_parameter(address)
         driver = webdriver.Chrome()
         driver.maximize_window()
         try:
@@ -63,6 +67,7 @@ class MainSiteHTML(Main):
         Args:
             driver (webdriver.Chrome): webdriver.Chrome object with HTML
         """
+        MainSiteHTML.check_wd_parameter(driver)
         button = driver.find_element(By.CLASS_NAME, "header-address__receive-button")
         button.click()
         time.sleep(2)
@@ -75,6 +80,8 @@ class MainSiteHTML(Main):
             driver (webdriver.Chrome): webdriver.Chrome object with HTML
             address (str): the address where we are looking for products
         """
+        MainSiteHTML.check_wd_parameter(driver)
+        MainSiteHTML.check_str_parameter(address)
         input = driver.find_element(By.ID, "search-input")
         input.clear()  # Clearing an input field
         input.send_keys(address)  # Filling in the address
@@ -90,6 +97,8 @@ class MainSiteHTML(Main):
         Args:
             driver (webdriver.Chrome): webdriver.Chrome object with HTML
         """
+        MainSiteHTML.check_wd_parameter(driver)
+
         # Get the list of "Сохранить" buttons
         save_list = driver.find_elements(
             By.CLASS_NAME,
@@ -113,6 +122,8 @@ class MainSiteHTML(Main):
         Args:
             driver (webdriver.Chrome): object of class webdriver.Chrome
         """
+        MainSiteHTML.check_wd_parameter(driver)
+        MainSiteHTML.check_str_parameter(name_file)
         while True:
             buttons_list = cls.find_button(driver)
             """If the block is not found, then save
@@ -123,7 +134,7 @@ class MainSiteHTML(Main):
                 cls.save_file(driver, name_file)
                 break  # exit the loop
             else:
-                cls.click_button(driver, buttons_list)
+                cls.click_button(buttons_list)
 
     @classmethod
     def find_button(cls, driver: webdriver.Chrome) -> list:
@@ -135,6 +146,7 @@ class MainSiteHTML(Main):
         Returns:
             list: list of found elements
         """
+        MainSiteHTML.check_wd_parameter(driver)
         return driver.find_elements(
             by=By.XPATH,
             value="//*[contains(text(), 'Показать ещё')]"
@@ -147,17 +159,20 @@ class MainSiteHTML(Main):
         Args:
             driver (webdriver.Chrome): object of class webdriver.Chrome
         """
+        MainSiteHTML.check_wd_parameter(driver)
+        MainSiteHTML.check_str_parameter(name_file)
         with open(name_file, "w") as file:
             file.write(driver.page_source)
 
     @classmethod
-    def click_button(cls, driver: webdriver.Chrome, buttons_list: list) -> None:
+    def click_button(cls, buttons_list: list) -> None:
         """Method of pressing the buttons found
 
         Args:
             driver (webdriver.Chrome): object of class webdriver.Chrome
             buttons_list (list): list of web elements with buttons
         """
+        MainSiteHTML.check_list_parameter(buttons_list)
         for btn in buttons_list:
             btn.click()
         time.sleep(7)

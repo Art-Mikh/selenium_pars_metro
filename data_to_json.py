@@ -10,7 +10,7 @@ import time
 from fake_useragent import UserAgent
 from random import randint as rand
 import json
-from main_parser_class import MainParserClass as Main
+from main_parser_class import MainParserClass as Main, ErrorMixin as ErrMixin
 
 headers = {
     "accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/" +
@@ -27,7 +27,7 @@ class ProductAttributes:
     PROMO:     str = ''
 
 
-class DataToJson(Main):
+class DataToJson(Main, ErrMixin):
     """The class for obtaining links and prices from a TXT file and creating
     requests to the site in order to obtain output data for recording in json.
     """
@@ -38,6 +38,7 @@ class DataToJson(Main):
         Args:
             url (str): path to TXT file
         """
+        DataToJson.check_str_parameter(file_path)
         cls.get_data(file_path)
 
     @classmethod
@@ -51,6 +52,7 @@ class DataToJson(Main):
         Returns:
             str: method success message
         """
+        DataToJson.check_str_parameter(file_path)
         urls_list: list = cls.get_list_strings(file_path)
 
         result_list: list = []
@@ -58,7 +60,6 @@ class DataToJson(Main):
 
         for url in urls_list:
             prod_attr: ProductAttributes = cls.get_attributes(url)
-            print(prod_attr.REFERENCE)
             soup: BeautifulSoup = cls.get_additional_attribute(prod_attr.REFERENCE)
 
             # Filling the list of products for uploading in json
@@ -87,11 +88,22 @@ class DataToJson(Main):
         Returns:
             list: list of strings
         """
+        DataToJson.check_str_parameter(file_path)
         with open(file_path) as file:
             return [url.strip() for url in file]
 
     @classmethod
     def get_additional_attribute(cls, reference: str) -> BeautifulSoup:
+        """obtaining additional product parameters via "requests"
+
+        Args:
+            reference (str): link to product page
+
+        Returns:
+            BeautifulSoup: object with HTML
+        """
+        DataToJson.check_str_parameter(reference)
+        print(reference)
         response = requests.get(url=reference, headers=headers)
         return BeautifulSoup(response.text, "lxml")
 
@@ -107,6 +119,7 @@ class DataToJson(Main):
             ProductAttributes: Returns the ProductAttributes
             object containing product attributes
         """
+        DataToJson.check_str_parameter(attribute_string)
         url_list: list = attribute_string.split()
 
         prod_attr = ProductAttributes()
@@ -129,11 +142,12 @@ class DataToJson(Main):
         Returns:
             str: found product ID
         """
+        DataToJson.check_bs_parameter(soup)
         try:
             long_id = soup.find("p", {"class": "product-page-content__article"}).text.strip()
             return long_id.split()[1] if long_id else ''
         except Exception:
-            return None
+            return ''
 
     @classmethod
     def get_name(cls, soup: BeautifulSoup) -> str:
@@ -145,12 +159,13 @@ class DataToJson(Main):
         Returns:
             str: found product 'Name'
         """
+        DataToJson.check_bs_parameter(soup)
         try:
             return soup.find(
                 "h1", {"class": "product-page-content__product-name"}
             ).text.strip()
         except Exception:
-            return None
+            return ''
 
     @classmethod
     def get_brand(cls, soup: BeautifulSoup) -> str:
@@ -162,6 +177,7 @@ class DataToJson(Main):
         Returns:
             str: found product 'Brand'
         """
+        DataToJson.check_bs_parameter(soup)
         result_list = []
         try:
             brand = ''
@@ -174,7 +190,7 @@ class DataToJson(Main):
 
             return brand.strip()
         except Exception:
-            return None
+            return ''
 
     @classmethod
     def save_json(cls, data_collection: list) -> None:
@@ -183,5 +199,6 @@ class DataToJson(Main):
         Args:
             data_collection (list): list with product attributes
         """
-        with open("result.json.json", "a") as file:
+        DataToJson.check_list_parameter(data_collection)
+        with open("result.json", "a") as file:
             json.dump(data_collection, file, indent=4, ensure_ascii=False)

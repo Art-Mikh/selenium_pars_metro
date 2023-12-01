@@ -2,10 +2,10 @@
 addresses and prices and saving the result to a TXT file
 """
 from bs4 import BeautifulSoup
-from main_parser_class import MainParserClass as Main
+from main_parser_class import MainParserClass as Main, ErrorMixin as ErrMixin
 
 
-class LXMLParser(Main):
+class LXMLParser(Main, ErrMixin):
     """Class for converting HTML into a list of addresses and
     prices and saving the result to a TXT file
     """
@@ -16,6 +16,7 @@ class LXMLParser(Main):
         Args:
             url (str): path to HTML file
         """
+        LXMLParser.check_str_parameter(file_path)
         cls.get_items_urls(file_path)
 
     @classmethod
@@ -28,6 +29,7 @@ class LXMLParser(Main):
         Returns:
             str: status message about successful completion
         """
+        LXMLParser.check_str_parameter(file_path)
         src: str = cls.open_file(file_path)
         soup = BeautifulSoup(src, "lxml")
         urls: list = cls.generate_string_list(soup)
@@ -44,6 +46,7 @@ class LXMLParser(Main):
         Returns:
             str: lines from open file
         """
+        LXMLParser.check_str_parameter(file_path)
         with open(file_path, 'r') as file:
             src = file.read()
         return src
@@ -58,6 +61,7 @@ class LXMLParser(Main):
         Returns:
             list: list of links and prices
         """
+        LXMLParser.check_bs_parameter(soup)
         urls = []
         for block in soup.find_all('div', class_="product-card__content"):
             reference = block.find('a', class_="product-card-name")
@@ -74,6 +78,8 @@ class LXMLParser(Main):
         Args:
             urls (list): list of links and prices
         """
+        LXMLParser.check_list_parameter(urls)
+        LXMLParser.check_str_parameter(file_path)
         name: str = file_path.split('.')[0]
         with open(name + ".txt", "w") as file:
             for url in urls:
