@@ -23,8 +23,9 @@ class MainSiteHTML(Main):
         )
         cls.get_source_html(
             url=url,
-            file_path="st_petersburg.html",
-            address="Санкт-Петербург, Подольская улица, 38"
+            file_path="st_petersburg.html",            
+            # "Санкт-Петербург, Подольская улица, 38"
+            address="Санкт-Петербург, Малодетскосельский проспект, 7"
         )
 
     @classmethod
