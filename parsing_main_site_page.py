@@ -4,11 +4,12 @@ receiving HTML data from the main page of the site
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 import time
-from main_parser_class import MainParserClass as Main, ErrorMixin as ErrMixin
+from random import randint as rand
+from main_parser_class import MainParserClass as Main
 from selenium.webdriver.common.keys import Keys
 
 
-class MainSiteHTML(Main, ErrMixin):
+class MainSiteHTML(Main):
     @classmethod
     def main(cls, url: str) -> None:
         """Method to run logic of the class
@@ -48,12 +49,13 @@ class MainSiteHTML(Main, ErrMixin):
         driver.maximize_window()
         try:
             driver.get(url=url)
-            time.sleep(3)  # waiting for the page to load
+            time.sleep(1 + rand(1, 4))  # waiting for the page to load
             cls.open_address_entry_window(driver)
             cls.enter_addresses(driver, address)
             cls.click_save_button(driver)
+            driver.refresh()
             cls.scroll_page(driver, file_path)
-            time.sleep(3)
+            time.sleep(2 + rand(1, 4))
         except Exception as exc:
             print(exc)
         finally:
@@ -70,7 +72,7 @@ class MainSiteHTML(Main, ErrMixin):
         MainSiteHTML.check_wd_parameter(driver)
         button = driver.find_element(By.CLASS_NAME, "header-address__receive-button")
         button.click()
-        time.sleep(2)
+        time.sleep(1 + rand(1, 4))
 
     @classmethod
     def enter_addresses(cls, driver: webdriver.Chrome, address: str) -> None:
@@ -85,9 +87,9 @@ class MainSiteHTML(Main, ErrMixin):
         input = driver.find_element(By.ID, "search-input")
         input.clear()  # Clearing an input field
         input.send_keys(address)  # Filling in the address
-        time.sleep(4)
+        time.sleep(2 + rand(1, 3))
         input.send_keys(Keys.ENTER)
-        time.sleep(4)
+        time.sleep(2 + rand(1, 3))
 
     @classmethod
     def click_save_button(cls, driver: webdriver.Chrome) -> None:
@@ -112,7 +114,7 @@ class MainSiteHTML(Main, ErrMixin):
                 break
             except Exception:
                 continue
-        time.sleep(10)
+        time.sleep(6 + rand(1, 4))
 
     @classmethod
     def scroll_page(cls, driver: webdriver.Chrome, name_file: str) -> None:
@@ -175,4 +177,4 @@ class MainSiteHTML(Main, ErrMixin):
         MainSiteHTML.check_list_parameter(buttons_list)
         for btn in buttons_list:
             btn.click()
-        time.sleep(7)
+        time.sleep(4 + rand(1, 4))

@@ -10,7 +10,7 @@ import time
 from fake_useragent import UserAgent
 from random import randint as rand
 import json
-from main_parser_class import MainParserClass as Main, ErrorMixin as ErrMixin
+from main_parser_class import MainParserClass as Main
 
 headers = {
     "accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/" +
@@ -27,7 +27,7 @@ class ProductAttributes:
     PROMO:     str = ''
 
 
-class DataToJson(Main, ErrMixin):
+class DataToJson(Main):
     """The class for obtaining links and prices from a TXT file and creating
     requests to the site in order to obtain output data for recording in json.
     """
@@ -73,7 +73,7 @@ class DataToJson(Main, ErrMixin):
                     "бренд": cls.get_brand(soup)
                 }
             )
-            time.sleep(2 + rand(1, 3))
+            time.sleep(1 + rand(1, 2))
 
         cls.save_json(result_list)
         return "[INFO] Data collected successfully"

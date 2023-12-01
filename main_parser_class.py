@@ -17,15 +17,11 @@ class ErrorMixin:
 
     @staticmethod
     def check_bs_parameter(bs: BeautifulSoup) -> None:
-        test = BeautifulSoup("html text", "lxml")
-        if type(bs) != type(test):
+        if not isinstance(bs, BeautifulSoup):
             raise TypeError("The passed parameter must be BeautifulSoup")
 
     @staticmethod
     def check_wd_parameter(wd: webdriver) -> None:
-        #test = webdriver.Chrome()
-        # test.close()
-        # test.quit()
         if not isinstance(wd, Chrome):
             raise TypeError("The passed parameter must be webdriver")
 

@@ -2,10 +2,10 @@
 addresses and prices and saving the result to a TXT file
 """
 from bs4 import BeautifulSoup
-from main_parser_class import MainParserClass as Main, ErrorMixin as ErrMixin
+from main_parser_class import MainParserClass as Main
 
 
-class LXMLParser(Main, ErrMixin):
+class LXMLParser(Main):
     """Class for converting HTML into a list of addresses and
     prices and saving the result to a TXT file
     """
