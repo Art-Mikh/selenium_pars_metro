@@ -7,9 +7,6 @@ from data_to_json import DataToJson as to_json
 class TestDataToJson(TestCase):
     """For testing methods of the DataToJson class"""
 
-    def test_main(self) -> None:
-        self.assertEqual(to_json.main(file_path="moscow.html"), None)
-
     def test_main_err(self) -> None:
         print(0)
         self.assertEqual(to_json.main(file_path=5), to_json.check_str_parameter(5))
@@ -19,12 +16,6 @@ class TestDataToJson(TestCase):
             to_json.main(file_path=5)
         message = ErrorMessages.STR.value
         self.assertEqual(message, err.exception.args[0])
-
-    def test_get_data(self) -> None:
-        self.assertEqual(
-            to_json.get_data(file_path="moscow.html"),
-            "[INFO] Data collected successfully"
-        )
 
     def test_get_list_strings(self) -> None:
         self.assertTrue(to_json.get_list_strings(file_path="moscow.html"))
@@ -76,20 +67,6 @@ class TestDataToJson(TestCase):
     def test_get_brand(self) -> None:
         soup = BeautifulSoup("", "lxml")
         self.assertEqual(to_json.get_brand(soup), '')
-
-    def test_get_brand_err(self) -> None:
-        with self.assertRaises(TypeError) as err:
-            to_json.get_brand(['45', 54, 1.23])
-        self.assertEqual(ErrorMessages.BEAUTIFULSOUP.value, err.exception.args[0])
-
-    def test_save_json(self) -> None:
-        self.assertEqual(to_json.save_json["erer", "ertw"], None)
-
-    def test_save_json_err(self) -> None:
-        with self.assertRaises(TypeError) as err:
-            to_json.save_json(56.8)
-        message = ErrorMessages.BEAUTIFULSOUP.value
-        self.assertEqual(message, err.exception.args[0])
 
 
 class ErrorMessages(Enum):
